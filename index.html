@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AdsPulse — Agency Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0E0F14;
+    --bg2: #14151C;
+    --bg3: #1C1D27;
+    --bg4: #22232F;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #F0F0F5;
+    --text2: #9494A8;
+    --text3: #5C5C72;
+    --purple: #7B5EF8;
+    --purple-dim: rgba(123,94,248,0.12);
+    --purple-mid: rgba(123,94,248,0.25);
+    --green: #22C993;
+    --green-dim: rgba(34,201,147,0.1);
+    --red: #F05A5A;
+    --red-dim: rgba(240,90,90,0.1);
+    --amber: #F5A623;
+    --amber-dim: rgba(245,166,35,0.1);
+    --blue: #4A9EF8;
+    --blue-dim: rgba(74,158,248,0.1);
+    --tiktok: #FF2D55;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+    --radius: 10px;
+    --radius-lg: 14px;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Layout */
+  .shell { display: grid; grid-template-rows: 56px 1fr; grid-template-columns: 220px 1fr; min-height: 100vh; }
+
+  /* Topbar */
+  .topbar {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; letter-spacing: -0.02em; }
+  .logo-icon {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: var(--purple);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .period-btn {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; color: var(--text2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 5px 12px;
+    background: var(--bg3);
+    cursor: pointer;
+  }
+  .avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--purple-mid);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; color: var(--purple);
+  }
+  .notif-btn {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--bg3); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--text2); font-size: 15px;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    padding: 20px 0;
+    overflow-y: auto;
+  }
+  .nav-section { margin-bottom: 24px; }
+  .nav-label {
+    font-size: 10px; font-weight: 600; letter-spacing: .1em;
+    color: var(--text3); padding: 0 16px; margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 16px; font-size: 13px; color: var(--text2);
+    cursor: pointer; border-radius: 0; transition: all .15s;
+    border-left: 2px solid transparent;
+  }
+  .nav-item:hover { color: var(--text); background: var(--bg3); }
+  .nav-item.active {
+    color: var(--purple); background: var(--purple-dim);
+    border-left-color: var(--purple); font-weight: 500;
+  }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .client-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .client-count {
+    margin-left: auto; font-size: 11px; font-family: var(--mono);
+    color: var(--text3); background: var(--bg4);
+    padding: 1px 6px; border-radius: 4px;
+  }
+
+  /* Main */
+  .main { background: var(--bg); padding: 28px; overflow-y: auto; }
+  .page-header { margin-bottom: 24px; }
+  .page-title { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .page-sub { font-size: 13px; color: var(--text2); }
+
+  /* Metric cards */
+  .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  .metric-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 18px 20px;
+    transition: border-color .2s;
+  }
+  .metric-card:hover { border-color: var(--border2); }
+  .metric-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .metric-label { font-size: 12px; color: var(--text2); font-weight: 500; }
+  .metric-icon {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; font-size: 13px;
+  }
+  .metric-value { font-size: 26px; font-weight: 600; letter-spacing: -0.03em; font-family: var(--mono); margin-bottom: 6px; }
+  .metric-change { font-size: 12px; display: flex; align-items: center; gap: 4px; }
+  .up { color: var(--green); }
+  .down { color: var(--red); }
+  .warn { color: var(--amber); }
+
+  /* Platform cards */
+  .platforms-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+  .platform-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 18px 20px;
+    transition: border-color .2s;
+  }
+  .platform-card:hover { border-color: var(--border2); }
+  .platform-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .platform-name { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; }
+  .platform-logo { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .badge { font-size: 11px; padding: 3px 8px; border-radius: 6px; font-weight: 500; }
+  .badge-purple { background: var(--purple-dim); color: var(--purple); }
+  .badge-green { background: var(--green-dim); color: var(--green); }
+  .badge-amber { background: var(--amber-dim); color: var(--amber); }
+  .platform-stat { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); }
+  .platform-stat:last-of-type { border-bottom: none; }
+  .stat-label { font-size: 12px; color: var(--text2); }
+  .stat-val { font-size: 13px; font-weight: 500; font-family: var(--mono); }
+  .bar-track { height: 4px; background: var(--bg4); border-radius: 99px; margin-top: 14px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 99px; }
+
+  /* Section header */
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .section-title { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+  .section-action { font-size: 12px; color: var(--purple); cursor: pointer; }
+
+  /* Client table */
+  .client-table { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 24px; }
+  .ct-head {
+    display: grid; grid-template-columns: 1.8fr 1fr 1fr 1fr 1fr 90px;
+    gap: 8px; padding: 10px 20px;
+    background: var(--bg3); border-bottom: 1px solid var(--border);
+  }
+  .ct-head span { font-size: 11px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+  .ct-row {
+    display: grid; grid-template-columns: 1.8fr 1fr 1fr 1fr 1fr 90px;
+    gap: 8px; padding: 13px 20px;
+    border-bottom: 1px solid var(--border);
+    align-items: center; transition: background .15s;
+  }
+  .ct-row:last-child { border-bottom: none; }
+  .ct-row:hover { background: var(--bg3); }
+  .ct-client { display: flex; align-items: center; gap: 10px; }
+  .ct-name { font-size: 13px; font-weight: 500; }
+  .ct-industry { font-size: 11px; color: var(--text3); }
+  .ct-val { font-size: 13px; font-family: var(--mono); color: var(--text); }
+  .ct-roas { font-size: 13px; font-family: var(--mono); font-weight: 600; }
+  .status-pill { font-size: 11px; padding: 4px 10px; border-radius: 99px; font-weight: 500; display: inline-block; }
+  .status-good { background: var(--green-dim); color: var(--green); }
+  .status-warn { background: var(--amber-dim); color: var(--amber); }
+  .status-bad { background: var(--red-dim); color: var(--red); }
+
+  /* Bottom row */
+  .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .info-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; }
+  .info-card-title { font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+  .insight-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+  .insight-item:last-child { border-bottom: none; }
+  .insight-dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+  .insight-text { font-size: 12px; color: var(--text2); line-height: 1.6; }
+  .insight-text strong { color: var(--text); font-weight: 500; }
+  .report-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .report-item:last-child { border-bottom: none; }
+  .report-name { font-size: 13px; }
+  .report-date { font-size: 12px; color: var(--text3); }
+  .send-btn {
+    font-size: 12px; color: var(--purple); background: var(--purple-dim);
+    border: none; border-radius: 6px; padding: 4px 10px; cursor: pointer;
+    font-family: var(--font); font-weight: 500;
+  }
+
+  /* Animations */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .metric-card { animation: fadeUp .4s ease both; }
+  .metric-card:nth-child(1) { animation-delay: .05s; }
+  .metric-card:nth-child(2) { animation-delay: .1s; }
+  .metric-card:nth-child(3) { animation-delay: .15s; }
+  .metric-card:nth-child(4) { animation-delay: .2s; }
+  .platform-card { animation: fadeUp .4s ease both; }
+  .platform-card:nth-child(1) { animation-delay: .25s; }
+  .platform-card:nth-child(2) { animation-delay: .3s; }
+  .platform-card:nth-child(3) { animation-delay: .35s; }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .shell { grid-template-columns: 1fr; grid-template-rows: 56px auto 1fr; }
+    .sidebar { display: none; }
+    .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+    .platforms-grid { grid-template-columns: 1fr; }
+    .bottom-grid { grid-template-columns: 1fr; }
+    .ct-head, .ct-row { grid-template-columns: 1.5fr 1fr 1fr 80px; }
+    .ct-head span:nth-child(3), .ct-head span:nth-child(4),
+    .ct-row > *:nth-child(3), .ct-row > *:nth-child(4) { display: none; }
+  }
+  @media (max-width: 600px) {
+    .main { padding: 16px; }
+    .metrics-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .metric-value { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      AdsPulse
+    </div>
+    <div class="topbar-right">
+      <div class="period-btn">
+        📅 May 2026
+      </div>
+      <div class="notif-btn">🔔</div>
+      <div class="avatar">JD</div>
+    </div>
+  </header>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="nav-section">
+      <div class="nav-label">Overview</div>
+      <div class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        All clients
+        <span class="client-count">4</span>
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+        Performance
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+        Reports
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Clients</div>
+      <div class="nav-item">
+        <div class="client-dot" style="background:#7B5EF8;"></div>
+        Novo Skincare
+      </div>
+      <div class="nav-item">
+        <div class="client-dot" style="background:#22C993;"></div>
+        FitCore PH
+      </div>
+      <div class="nav-item">
+        <div class="client-dot" style="background:#F5A623;"></div>
+        LuxeHome MNL
+      </div>
+      <div class="nav-item">
+        <div class="client-dot" style="background:#4A9EF8;"></div>
+        PetPal Delivery
+      </div>
+      <div class="nav-item" style="color:var(--text3);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add client
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Tools</div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        Integrations
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9"/></svg>
+        Send report
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main">
+    <div class="page-header">
+      <div class="page-title">Agency overview</div>
+      <div class="page-sub">All clients · May 1–10, 2026 · Auto-synced from Facebook, Google & TikTok</div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-top">
+          <span class="metric-label">Total ad spend</span>
+          <div class="metric-icon" style="background:var(--purple-dim); color:var(--purple);">💸</div>
+        </div>
+        <div class="metric-value">$42,180</div>
+        <div class="metric-change up">↑ 12% vs last month</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-top">
+          <span class="metric-label">Total leads</span>
+          <div class="metric-icon" style="background:var(--blue-dim); color:var(--blue);">👥</div>
+        </div>
+        <div class="metric-value">3,847</div>
+        <div class="metric-change up">↑ 8% vs last month</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-top">
+          <span class="metric-label">Total revenue</span>
+          <div class="metric-icon" style="background:var(--green-dim); color:var(--green);">📈</div>
+        </div>
+        <div class="metric-value">$198,440</div>
+        <div class="metric-change up">↑ 21% vs last month</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-top">
+          <span class="metric-label">Avg. ROAS</span>
+          <div class="metric-icon" style="background:var(--amber-dim); color:var(--amber);">⚡</div>
+        </div>
+        <div class="metric-value">4.7x</div>
+        <div class="metric-change down">↓ 0.3x vs last month</div>
+      </div>
+    </div>
+
+    <!-- Platform breakdown -->
+    <div class="section-header">
+      <div class="section-title">Platform breakdown</div>
+      <div class="section-action">View all →</div>
+    </div>
+    <div class="platforms-grid">
+      <div class="platform-card">
+        <div class="platform-header">
+          <div class="platform-name">
+            <div class="platform-logo" style="background:#1877F210; color:#1877F2;">f</div>
+            Facebook ads
+          </div>
+          <span class="badge badge-purple">Primary</span>
+        </div>
+        <div class="platform-stat"><span class="stat-label">Spend</span><span class="stat-val">$22,400</span></div>
+        <div class="platform-stat"><span class="stat-label">Leads</span><span class="stat-val">2,210</span></div>
+        <div class="platform-stat"><span class="stat-label">CPL</span><span class="stat-val">$10.14</span></div>
+        <div class="platform-stat"><span class="stat-label">ROAS</span><span class="stat-val up">5.1x</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:72%; background:var(--purple);"></div></div>
+      </div>
+      <div class="platform-card">
+        <div class="platform-header">
+          <div class="platform-name">
+            <div class="platform-logo" style="background:#4285F410; color:#4285F4;">G</div>
+            Google ads
+          </div>
+          <span class="badge badge-green">Active</span>
+        </div>
+        <div class="platform-stat"><span class="stat-label">Spend</span><span class="stat-val">$13,980</span></div>
+        <div class="platform-stat"><span class="stat-label">Leads</span><span class="stat-val">1,190</span></div>
+        <div class="platform-stat"><span class="stat-label">CPL</span><span class="stat-val">$11.75</span></div>
+        <div class="platform-stat"><span class="stat-label">ROAS</span><span class="stat-val up">4.2x</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:45%; background:var(--green);"></div></div>
+      </div>
+      <div class="platform-card">
+        <div class="platform-header">
+          <div class="platform-name">
+            <div class="platform-logo" style="background:#FF2D5510; color:#FF2D55;">T</div>
+            TikTok ads
+          </div>
+          <span class="badge badge-amber">Testing</span>
+        </div>
+        <div class="platform-stat"><span class="stat-label">Spend</span><span class="stat-val">$5,800</span></div>
+        <div class="platform-stat"><span class="stat-label">Leads</span><span class="stat-val">447</span></div>
+        <div class="platform-stat"><span class="stat-label">CPL</span><span class="stat-val">$12.98</span></div>
+        <div class="platform-stat"><span class="stat-label">ROAS</span><span class="stat-val warn">2.9x</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:24%; background:var(--amber);"></div></div>
+      </div>
+    </div>
+
+    <!-- Client table -->
+    <div class="section-header">
+      <div class="section-title">Client performance</div>
+      <div class="section-action">Export CSV →</div>
+    </div>
+    <div class="client-table">
+      <div class="ct-head">
+        <span>Client</span>
+        <span>Spend</span>
+        <span>Leads</span>
+        <span>Revenue</span>
+        <span>ROAS</span>
+        <span>Status</span>
+      </div>
+      <div class="ct-row">
+        <div class="ct-client">
+          <div class="client-dot" style="background:#7B5EF8;"></div>
+          <div><div class="ct-name">Novo Skincare</div><div class="ct-industry">Beauty / E-com</div></div>
+        </div>
+        <div class="ct-val">$14,200</div>
+        <div class="ct-val">1,240</div>
+        <div class="ct-val">$78,100</div>
+        <div class="ct-roas up">5.5x</div>
+        <span class="status-pill status-good">On track</span>
+      </div>
+      <div class="ct-row">
+        <div class="ct-client">
+          <div class="client-dot" style="background:#22C993;"></div>
+          <div><div class="ct-name">FitCore PH</div><div class="ct-industry">Fitness / Leads</div></div>
+        </div>
+        <div class="ct-val">$11,400</div>
+        <div class="ct-val">987</div>
+        <div class="ct-val">$52,440</div>
+        <div class="ct-roas up">4.6x</div>
+        <span class="status-pill status-good">On track</span>
+      </div>
+      <div class="ct-row">
+        <div class="ct-client">
+          <div class="client-dot" style="background:#F5A623;"></div>
+          <div><div class="ct-name">LuxeHome MNL</div><div class="ct-industry">Real estate</div></div>
+        </div>
+        <div class="ct-val">$9,780</div>
+        <div class="ct-val">820</div>
+        <div class="ct-val">$38,900</div>
+        <div class="ct-roas warn">3.9x</div>
+        <span class="status-pill status-warn">Review</span>
+      </div>
+      <div class="ct-row">
+        <div class="ct-client">
+          <div class="client-dot" style="background:#4A9EF8;"></div>
+          <div><div class="ct-name">PetPal Delivery</div><div class="ct-industry">Pet services</div></div>
+        </div>
+        <div class="ct-val">$6,800</div>
+        <div class="ct-val">800</div>
+        <div class="ct-val">$29,000</div>
+        <div class="ct-roas down">2.8x</div>
+        <span class="status-pill status-bad">At risk</span>
+      </div>
+    </div>
+
+    <!-- Bottom row -->
+    <div class="bottom-grid">
+      <div class="info-card">
+        <div class="info-card-title">💡 AI insights</div>
+        <div class="insight-item">
+          <div class="insight-dot" style="background:var(--red);"></div>
+          <div class="insight-text"><strong>PetPal ROAS dropped 18%</strong> in the last 7 days. Facebook frequency hit 4.2 — audience fatigue likely. Recommend refreshing creatives.</div>
+        </div>
+        <div class="insight-item">
+          <div class="insight-dot" style="background:var(--green);"></div>
+          <div class="insight-text"><strong>Novo Skincare</strong> is outperforming ROAS target by 38%. Budget increase of 20% recommended to capture peak demand.</div>
+        </div>
+        <div class="insight-item">
+          <div class="insight-dot" style="background:var(--amber);"></div>
+          <div class="insight-text"><strong>TikTok ads</strong> CPL is 28% higher than Facebook. Consider pausing lowest-performing ad sets before end of week.</div>
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">📤 Client reports</div>
+        <div class="report-item">
+          <div><div class="report-name">Novo Skincare — May report</div><div class="report-date">Due May 15</div></div>
+          <button class="send-btn">Send →</button>
+        </div>
+        <div class="report-item">
+          <div><div class="report-name">FitCore PH — May report</div><div class="report-date">Due May 15</div></div>
+          <button class="send-btn">Send →</button>
+        </div>
+        <div class="report-item">
+          <div><div class="report-name">LuxeHome MNL — May report</div><div class="report-date">Due May 15</div></div>
+          <button class="send-btn">Send →</button>
+        </div>
+        <div class="report-item">
+          <div><div class="report-name">PetPal Delivery — May report</div><div class="report-date">Due May 15</div></div>
+          <button class="send-btn">Send →</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</body>
+</html>
